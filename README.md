@@ -52,7 +52,7 @@ For phase two, upload the pending students with their revised choices and the do
 
 ## Deployment
 
-The root `vercel.json` defines Vercel services for the Vite frontend and FastAPI API, routing `/api/*` to FastAPI and other paths to the frontend. Import the repository as a Vercel project and set `DATABASE_URL` in the project environment variables. Use a hosted PostgreSQL service reachable from Vercel; do not point it at a local database.
+The root `vercel.json` builds the Vite frontend from `frontend/`, serves it from `frontend/dist`, and routes `/api/*` to the FastAPI function in `api/index.py`. Import the repository as a single Vercel project and set `DATABASE_URL` in the project environment variables. Use a hosted PostgreSQL service reachable from Vercel; do not point it at a local database.
 
 Source repository: <https://github.com/Pranav-24006/Mtech_Allocation>. The Vercel GitHub App must have access to this repository before importing it. Add a hosted PostgreSQL connection as the Vercel `DATABASE_URL` environment variable before using the deployed API.
 
