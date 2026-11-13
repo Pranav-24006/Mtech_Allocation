@@ -21,7 +21,7 @@ A stateless supervisor-allocation app: FastAPI and Pandas process uploaded CSVs 
 ## Local setup
 
 1. Copy `.env.example` to `.env` and set `DATABASE_URL` to a PostgreSQL connection string.
-2. Start PostgreSQL, then start the API:
+2. To run the API locally, start PostgreSQL and configure `DATABASE_URL`, then start the API:
 
    ```powershell
    python -m venv .venv
@@ -30,7 +30,7 @@ A stateless supervisor-allocation app: FastAPI and Pandas process uploaded CSVs 
    uvicorn backend.app.main:app --reload
    ```
 
-3. In another terminal:
+3. In another terminal, start the frontend:
 
    ```powershell
    cd frontend
@@ -38,7 +38,7 @@ A stateless supervisor-allocation app: FastAPI and Pandas process uploaded CSVs 
    npm run dev
    ```
 
-The Vite development server proxies `/api` requests to `http://localhost:8000`. The API creates only the `faculty` table and synchronizes its rows with the official present-faculty roster at startup. Existing IDs are preserved when an existing seed name is renamed to its official directory name; non-current seed rows are removed.
+The Vite development server proxies `/api` requests to the deployed API at `https://mtech-allocation.vercel.app` by default, so the local preview works without a local database. Student CSV uploads from this preview are sent to the hosted API for in-memory processing. To use a local API instead, set `API_PROXY_TARGET=http://localhost:8000` before starting Vite and start the backend as above. The API creates only the `faculty` table and synchronizes its rows with the official present-faculty roster at startup. Existing IDs are preserved when an existing seed name is renamed to its official directory name; non-current seed rows are removed.
 
 ## CSV format
 
