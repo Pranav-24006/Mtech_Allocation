@@ -4,7 +4,7 @@ A stateless supervisor-allocation app: FastAPI and Pandas process uploaded CSVs 
 
 ## Features
 
-- Faculty catalogue seeded with the 18 supplied CSE faculty choices.
+- Faculty catalogue synchronized with the 41 present faculty listed by the [official NIT Durgapur CSE directory](https://nitdgp.ac.in/department/computer-science-engineering/faculty-1). The directory's official name labels are used without titles.
 - CSV validation and exact faculty-name-to-ID resolution (no fuzzy matching).
 - Configurable merit total: choose GATE Score, GATE Marks, and any subset of the four subject columns. The same selected subject columns are summed for every student.
 - Four preference rounds, ranking by total merit and then GATE Score.
@@ -38,7 +38,7 @@ A stateless supervisor-allocation app: FastAPI and Pandas process uploaded CSVs 
    npm run dev
    ```
 
-The Vite development server proxies `/api` requests to `http://localhost:8000`. The API creates only the `faculty` table and idempotently seeds the supplied faculty names at startup.
+The Vite development server proxies `/api` requests to `http://localhost:8000`. The API creates only the `faculty` table and synchronizes its rows with the official present-faculty roster at startup. Existing IDs are preserved when an existing seed name is renamed to its official directory name; non-current seed rows are removed.
 
 ## CSV format
 

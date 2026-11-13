@@ -1,7 +1,7 @@
 import os
 
 from dotenv import load_dotenv
-from sqlalchemy import create_engine, text
+from sqlalchemy import bindparam, create_engine, text
 from sqlalchemy.engine import Engine
 
 
@@ -23,25 +23,68 @@ engine: Engine = create_engine(_database_url(), pool_pre_ping=True)
 
 
 FACULTY_SEED = (
-    "Prof. Subrata Nandi (HOD)",
-    "Dr. Abhijit Sharma",
-    "Dr. Animesh Dutta",
-    "Dr. Anirban Sarkar",
-    "Dr. Ankush Acharyya",
-    "Dr. Babul Prasad Tewari",
-    "Dr. Baisakhi Chakraborty",
-    "Dr. Bibhash Sen",
-    "Dr. Dakshina Ranjan Kisku",
-    "Dr. Debidas Ghosh",
-    "Mr. Parag Kumar Guhathakurta",
-    "Dr. Tandra Pal",
-    "Dr. Suchismita Roy",
-    "Mr. Sanjib Sadhu",
-    "Dr. Goutam Sanyal",
-    "Dr. Goutam Sarker",
-    "Mrs. Mamata Dalui",
-    "Dr. Narayan Murmu",
+    "Abhijit Sharma",
+    "Animesh Dutta",
+    "Anirban Sarkar",
+    "Ankush Acharyya",
+    "Babul Prasad Tewari",
+    "Baisakhi Chakraborty",
+    "Bibhash Sen",
+    "Dakshina Ranjan Kisku",
+    "Debashis Nandi",
+    "Debasis Mitra",
+    "Deepanwita Das",
+    "Jaydeep Howlader",
+    "Mamata Dalui Chakraborty",
+    "Md. Sarfaraj Alam Ansari",
+    "Monalisa Mandal",
+    "Mousumi Saha",
+    "Nanda Dulal Jana",
+    "Narayan Murmu",
+    "Parag Kumar Guha Thakurta",
+    "Prasenjit Choudhury",
+    "Rajib Kumar Chatterjee",
+    "Richa Sharma",
+    "Sajal Mukhopadhyay",
+    "Sandip Karmakar",
+    "Sanghita Bhattacharjee",
+    "Sanjib Sadhu",
+    "Saravanan Chandran",
+    "Shyantani Maiti",
+    "Subhankar Majhi",
+    "Subhas Chandra Sahana",
+    "Subhrabrata Choudhury",
+    "Subrata Nandi",
+    "Suchismita Roy",
+    "Sujan Kumar Saha",
+    "Sujit Das",
+    "Sujoy Saha",
+    "Suvadip Batabyal",
+    "Suvamoy Changder",
+    "Suvrojit Das",
+    "Tandra Pal",
+    "Tanmay De",
 )
+
+FACULTY_RENAMES = {
+    "Prof. Subrata Nandi (HOD)": "Subrata Nandi",
+    "Dr. Abhijit Sharma": "Abhijit Sharma",
+    "Dr. Animesh Dutta": "Animesh Dutta",
+    "Dr. Anirban Sarkar": "Anirban Sarkar",
+    "Dr. Ankush Acharyya": "Ankush Acharyya",
+    "Dr. Babul Prasad Tewari": "Babul Prasad Tewari",
+    "Dr. Baisakhi Chakraborty": "Baisakhi Chakraborty",
+    "Dr. Bibhash Sen": "Bibhash Sen",
+    "Dr. Dakshina Ranjan Kisku": "Dakshina Ranjan Kisku",
+    "Mr. Parag Kumar Guhathakurta": "Parag Kumar Guha Thakurta",
+    "Dr. Tandra Pal": "Tandra Pal",
+    "Dr. Suchismita Roy": "Suchismita Roy",
+    "Mr. Sanjib Sadhu": "Sanjib Sadhu",
+    "Mrs. Mamata Dalui": "Mamata Dalui Chakraborty",
+    "Dr. Narayan Murmu": "Narayan Murmu",
+}
+
+_FACULTY_NAMES = bindparam("faculty_names", expanding=True)
 
 
 def initialize_faculty_table(db_engine: Engine = engine) -> None:
@@ -58,6 +101,21 @@ def initialize_faculty_table(db_engine: Engine = engine) -> None:
                 """
             )
         )
+        for previous_name, official_name in FACULTY_RENAMES.items():
+            connection.execute(
+                text(
+                    """
+                    UPDATE faculty AS legacy
+                    SET name = :official_name
+                    WHERE legacy.name = :previous_name
+                      AND NOT EXISTS (
+                          SELECT 1 FROM faculty AS current
+                          WHERE current.name = :official_name
+                      )
+                    """
+                ),
+                {"previous_name": previous_name, "official_name": official_name},
+            )
         for faculty_name in FACULTY_SEED:
             connection.execute(
                 text(
@@ -69,6 +127,10 @@ def initialize_faculty_table(db_engine: Engine = engine) -> None:
                 ),
                 {"name": faculty_name},
             )
+        connection.execute(
+            text("DELETE FROM faculty WHERE name NOT IN :faculty_names").bindparams(_FACULTY_NAMES),
+            {"faculty_names": FACULTY_SEED},
+        )
 
 
 def fetch_faculty(db_engine: Engine = engine) -> list[dict[str, object]]:
